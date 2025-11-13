@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Date;
 
-public class ProjectRequestDTO {
+public class ProjectRequestDTO{
 
     @NotBlank(message = "Nome é obrigatório")
     @Size(min = 3,max = 100,message = "Tamanho do nome fora dos limites(3 - 100)")
@@ -61,4 +61,5 @@ public class ProjectRequestDTO {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
+
 }

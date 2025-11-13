@@ -7,10 +7,9 @@ import com.desafio.gerenciamento.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/projects")
@@ -27,5 +26,11 @@ public class ProjectController {
         Project novoProjeto = projectService.criarProjeto(request);
         ProjectResponseDTO response = new ProjectResponseDTO(novoProjeto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProjectResponseDTO>> listarTodosProjetos() {
+        List<ProjectResponseDTO> projects = projectService.listarProjetos();
+        return new ResponseEntity<>(projects,HttpStatus.OK);
     }
 }

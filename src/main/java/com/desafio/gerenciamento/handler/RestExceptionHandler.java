@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,7 @@ public class RestExceptionHandler {
 
         ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
                 status.value(),
+                LocalDateTime.now(),
                 status.getReasonPhrase(),
                 ex.getMessage(),
                 path,
@@ -43,6 +46,7 @@ public class RestExceptionHandler {
         }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 status.value(),
+                LocalDateTime.now(),
                 status.getReasonPhrase(),
                 detailMessage,
                 path,
@@ -70,10 +74,30 @@ public class RestExceptionHandler {
 
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 status.value(),
+                LocalDateTime.now(),
                 status.getReasonPhrase(),
                 detailMessage,
                 path,
                 errors
+        );
+        return new ResponseEntity<>(errorResponse,status);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFound(ResourceNotFoundException ex,WebRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        String detailMessage = "Projeto não encontrado";
+        String path = request.getDescription(false).replace("uri=","");
+        if(ex.getCause() != null) {
+            detailMessage = ex.getCause().getMessage();
+        }
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                status.value(),
+                LocalDateTime.now(),
+                status.getReasonPhrase(),
+                detailMessage,
+                path,
+                null
         );
         return new ResponseEntity<>(errorResponse,status);
     }
