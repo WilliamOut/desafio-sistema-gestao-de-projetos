@@ -1,16 +1,12 @@
 package com.desafio.gerenciamento.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "tb_project")
-@AllArgsConstructor
-@NoArgsConstructor
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +29,7 @@ public class Project {
 
     public Project() {}
 
-    public Project(Long id, String name, String description, LocalDate startDate, LocalDate endDate) {
-        this.id = id;
+    public Project(String name, String description, LocalDate startDate, LocalDate endDate) {
         this.name = name;
         this.description = description;
         this.startDate = startDate;

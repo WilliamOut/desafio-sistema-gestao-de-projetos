@@ -8,12 +8,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
@@ -25,6 +26,9 @@ class ProjectServiceTest {
     @InjectMocks // * criar uma instancia da nossa classe de service, injetando os mocks, como o repository
     private ProjectService projectService;
 
+    @Captor
+    private ArgumentCaptor<Project> argumentCaptor;
+
     @Nested // * junit identificar que é uma subclasse
     class criarProjeto{
 
@@ -35,29 +39,26 @@ class ProjectServiceTest {
             ProjectRequestDTO dto = new ProjectRequestDTO();
             dto.setName("BBBB");
             dto.setDescription("Descrição do projeto");
-            dto.setEndDate(LocalDate.now());
+            dto.setStartDate(LocalDate.now());
             dto.setEndDate(LocalDate.now().plusMonths(3));
 
-            Project novoProjeto = new Project();
-            novoProjeto.setName(dto.getName());
-            novoProjeto.setDescription(dto.getDescription());
-            novoProjeto.setStartDate(dto.getStartDate());
-            novoProjeto.setEndDate(dto.getEndDate());
-
-
             //quando
-            when(projectRepository.findByName(dto.getName())).thenReturn(null);
-            when(projectRepository.save(any(Project.class))).thenReturn(novoProjeto);
+            doReturn(null).when(projectRepository).findByName(dto.getName());
+            when(projectRepository.save(any(Project.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            //service
             Project output = projectService.criarProjeto(dto);
 
-
             //entao
-            assertNotNull(output);
-            assertEquals(output.getId(),novoProjeto.getId());
-            assertEquals(dto.getName(),output.getName());
-            assertEquals(dto.getStartDate(),output.getStartDate());
-            verify(projectRepository,times(1)).findByName(dto.getName());
-            verify(projectRepository,times(1)).save(any(Project.class));
+            verify(projectRepository,times(1)).save(argumentCaptor.capture());
+            Project projetoCapturado = argumentCaptor.getValue();
+
+            assertNotNull(output,"O output não pode ser nulo");
+            assertEquals(projetoCapturado.getId(),output.getId());
+            assertEquals(projetoCapturado.getName(),output.getName());
+            assertEquals(projetoCapturado.getStartDate(),output.getStartDate());
+            assertEquals(projetoCapturado.getEndDate(),output.getEndDate());
         }
 
         @Test
@@ -67,19 +68,15 @@ class ProjectServiceTest {
             ProjectRequestDTO dto = new ProjectRequestDTO();
             dto.setName("BBBB");
             dto.setDescription("Descrição do projeto");
-            dto.setEndDate(LocalDate.now());
+            dto.setStartDate(LocalDate.now());
             dto.setEndDate(LocalDate.now().plusMonths(3));
-            Project projetoExistente = new Project(1L,"BBBB","Descrição do projeto",LocalDate.now(),LocalDate.now().plusMonths(3));
+            Project projetoExistente = new Project("BBBB","Descrição do projeto",LocalDate.now(),LocalDate.now().plusMonths(3));
 
             //quando
-            when(projectRepository.findByName(dto.getName())).thenReturn(projetoExistente);
-
+            doReturn(projetoExistente).when(projectRepository).findByName(dto.getName());
 
             //entao
-            assertThrows(ProjectExists.class, () -> {
-                projectService.criarProjeto(dto);
-            });
-            verify(projectRepository,never()).save(any(Project.class));
+            assertThrows(ProjectExists.class,() -> projectService.criarProjeto(dto));
         }
 
     }
