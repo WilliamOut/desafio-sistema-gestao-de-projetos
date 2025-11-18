@@ -1,16 +1,17 @@
 package com.desafio.gerenciamento.model;
 
 public enum Priority {
-    LOW(1),
-    MEDIUM(2),
-    HIGH(3);
+    LOW("low"),
+    MEDIUM("medium"),
+    HIGH("high");
 
-    private int value;
-    Priority(int value) {
+    private String value;
+
+    Priority(String value) {
         this.value = value;
     }
 
-    public int getValue() {
+    public String getValue() {
         return value;
     }
 }

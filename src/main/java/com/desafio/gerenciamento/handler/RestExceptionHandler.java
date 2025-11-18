@@ -1,6 +1,9 @@
 package com.desafio.gerenciamento.handler;
 
-import com.desafio.gerenciamento.response.ErrorResponseDTO;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -9,9 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.desafio.gerenciamento.response.ErrorResponseDTO;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -20,7 +21,7 @@ public class RestExceptionHandler {
     @ExceptionHandler(ProjectExists.class)
     public ResponseEntity<Object> handleProjectExists(ProjectExists ex, WebRequest request) {
         HttpStatus status = HttpStatus.CONFLICT;
-        String path = request.getDescription(false).replace("uri=","");
+        String path = request.getDescription(false).replace("uri=", "");
 
         ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
                 status.value(),
@@ -28,20 +29,35 @@ public class RestExceptionHandler {
                 status.getReasonPhrase(),
                 ex.getMessage(),
                 path,
-                null
-        );
+                null);
+
+        return new ResponseEntity<>(errorResponseDTO, status);
+    }
+
+    @ExceptionHandler(TaskExists.class)
+    public ResponseEntity<Object> handleTaskExists(TaskExists ex, WebRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        String path = request.getDescription(false).replace("uri=", "");
+
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                status.value(),
+                LocalDateTime.now(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                path,
+                null);
 
         return new ResponseEntity<>(errorResponseDTO, status);
     }
 
     // * json mal formatado
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Object> handleJsonErrors(HttpMessageNotReadableException ex,WebRequest request) {
+    public ResponseEntity<Object> handleJsonErrors(HttpMessageNotReadableException ex, WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String detailMessage = "Corpo da requisição inválido. Verifique a sintaxe JSON!";
-        String path = request.getDescription(false).replace("uri=","");
+        String path = request.getDescription(false).replace("uri=", "");
 
-        if(ex.getRootCause() != null) {
+        if (ex.getRootCause() != null) {
             detailMessage = ex.getRootCause().getMessage();
         }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
@@ -50,19 +66,18 @@ public class RestExceptionHandler {
                 status.getReasonPhrase(),
                 detailMessage,
                 path,
-                null
-        );
-        return new ResponseEntity<>(errorResponse,status);
+                null);
+        return new ResponseEntity<>(errorResponse, status);
     }
 
     // * tratar as anotações de validation
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValdationErrors(MethodArgumentNotValidException ex,WebRequest request) {
+    public ResponseEntity<Object> handleValdationErrors(MethodArgumentNotValidException ex, WebRequest request) {
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         String detailMessage = "Erro em um ou mais campos!";
-        String path = request.getDescription(false).replace("uri=","");
+        String path = request.getDescription(false).replace("uri=", "");
 
-        if(ex.getCause() != null) {
+        if (ex.getCause() != null) {
             detailMessage = ex.getCause().getMessage();
         }
 
@@ -78,17 +93,16 @@ public class RestExceptionHandler {
                 status.getReasonPhrase(),
                 detailMessage,
                 path,
-                errors
-        );
-        return new ResponseEntity<>(errorResponse,status);
+                errors);
+        return new ResponseEntity<>(errorResponse, status);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Object> handleResourceNotFound(ResourceNotFoundException ex,WebRequest request) {
+    public ResponseEntity<Object> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request) {
         HttpStatus status = HttpStatus.NOT_FOUND;
         String detailMessage = "Projeto não encontrado";
-        String path = request.getDescription(false).replace("uri=","");
-        if(ex.getCause() != null) {
+        String path = request.getDescription(false).replace("uri=", "");
+        if (ex.getCause() != null) {
             detailMessage = ex.getCause().getMessage();
         }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
@@ -97,8 +111,7 @@ public class RestExceptionHandler {
                 status.getReasonPhrase(),
                 detailMessage,
                 path,
-                null
-        );
-        return new ResponseEntity<>(errorResponse,status);
+                null);
+        return new ResponseEntity<>(errorResponse, status);
     }
 }

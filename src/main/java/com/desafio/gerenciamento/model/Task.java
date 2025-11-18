@@ -1,28 +1,27 @@
 package com.desafio.gerenciamento.model;
 
-
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDate;
-import java.util.Date;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_task")
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
 public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private String title;
 
     @Column(nullable = false)
@@ -38,8 +37,22 @@ public class Task {
     private LocalDate dueDate;
 
     @ManyToOne
-    @JoinColumn(name = "project_id",nullable = false)
+    @JoinColumn(name = "project_id")
     private Project project;
+
+    public Task() {
+    }
+
+    public Task(Long id, String title, String description, Status status, Priority priority, LocalDate dueDate,
+            Project project) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.priority = priority;
+        this.dueDate = dueDate;
+        this.project = project;
+    }
 
     public Long getId() {
         return id;

@@ -1,17 +1,17 @@
 package com.desafio.gerenciamento.model;
 
-
 public enum Status {
-    TODO(1),
-    DOING(2),
-    DONE(3);
+    TODO("todo"),
+    DOING("doing"),
+    DONE("done");
 
-    private int value;
-    Status(int value) {
+    private String value;
+
+    Status(String value) {
         this.value = value;
     }
 
-    public int getValue() {
+    public String getValue() {
         return value;
     }
 }
